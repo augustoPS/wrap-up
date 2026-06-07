@@ -58,10 +58,13 @@ Only proceed with explicitly approved entries.
 
 For each approved entry, write to `$VAULT_DIR/Memory/<type>/<slug>.md`:
 
+**Every memory file MUST carry a root-level `originSessionId`.** Without it, the harness auto-memory adopts the file at the next turn boundary, re-nesting it under a `metadata:` block and stamping the session itself — which drops the file out of every tag/type-driven `.base` view (see the `memory-frontmatter-must-be-flat` rule). Read the current id from `~/.claude/session-start-state.json` (`.session_id`); if it is empty there, derive it from the active transcript directory name under `~/.claude/projects/`.
+
 ```markdown
 ---
 type: <feedback | user | project | reference>
 tags: [memory/<type>, <project-key>, <topic>]
+originSessionId: <current session id>
 ---
 # <Title>
 
