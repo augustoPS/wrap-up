@@ -9,7 +9,7 @@ Close the current session by extracting durable knowledge and recording a journa
 
 ## Configuration
 
-This skill uses `$VAULT_DIR` throughout to mean the root of your Obsidian vault. Resolve it from the `autoMemoryDirectory` setting in `~/.claude/settings.json` (strip the `/Memory` suffix) or the `CLAUDE_VAULT_DIR` environment variable. If neither is set, ask the user.
+This skill uses `$VAULT_DIR` throughout to mean the root of your Obsidian vault. Resolve it from the `autoMemoryDirectory` setting in `~/.claude/settings.json` (strip the `/memory` suffix) or the `CLAUDE_VAULT_DIR` environment variable. If neither is set, ask the user.
 
 ## Step 1: Review the session
 
@@ -56,7 +56,7 @@ Only proceed with explicitly approved entries.
 
 ## Step 4: Write approved memories
 
-For each approved entry, write to `$VAULT_DIR/Memory/<type>/<slug>.md`:
+For each approved entry, write to `$VAULT_DIR/memory/<type>/<slug>.md`:
 
 **Every memory file MUST carry a root-level `originSessionId`.** Without it, the harness auto-memory adopts the file at the next turn boundary, re-nesting it under a `metadata:` block and stamping the session itself — which drops the file out of every tag/type-driven `.base` view (see the `memory-frontmatter-must-be-flat` rule). Read the current id from `~/.claude/session-start-state.json` (`.session_id`); if it is empty there, derive it from the active transcript directory name under `~/.claude/projects/`.
 
@@ -79,11 +79,11 @@ No `**Links:**` line — memory files are off-graph. Tag the file with the relev
 
 Subfolder routing and hub updates differ by type:
 
-**feedback** → `Memory/feedback/<slug>.md`
+**feedback** → `memory/feedback/<slug>.md`
 No hub update — `feedback.base` indexes by folder; per-project `memory.base` views surface tagged ones. Off-graph by design.
 
-**user** → `Memory/user/<slug>.md`
-Then append under the matching section in `Memory/user/USER.md`:
+**user** → `memory/user/<slug>.md`
+Then append under the matching section in `memory/user/USER.md`:
 - Working-style memories (execution preferences, iteration style, biases, design workflow) → `## Working Style`
 - Identity / environment memories (git config, machine quirks, OS / shell setup) → `## Identity & Environment`
 
@@ -93,14 +93,14 @@ Then append under the matching section in `Memory/user/USER.md`:
 
 USER.md is a hub that intentionally wikilinks user memories — the resulting graph cluster is by design. **If appending pushes a section to ≥5 entries, surface that to the user** — that's the extraction trigger to promote the section into its own sub-hub at `memory/user/<theme>.md` (vault-system pattern), with USER.md keeping a single link line for the section.
 
-**project** → `Memory/project/<slug>.md`
+**project** → `memory/project/<slug>.md`
 No hub update. Project memories are surfaced via the project's `memory.base` (tag-driven Bases query); the project hub does NOT enumerate them with wikilinks. There is no global `PROJECT.md` hub — MEMORY.md's `## Projects` section points directly at `projects/projects.md`.
 
-**reference** → `Memory/reference/<slug>.md`
-Then append under the matching kind-based sub-hub in `Memory/reference/`:
-- Credentials, test accounts, doc-access tricks → `Memory/reference/CREDENTIALS.md`
-- MCP servers → `Memory/reference/MCP.md`
-- CLI tools, sync scripts, local platform integrations → `Memory/reference/TOOLS.md`
+**reference** → `memory/reference/<slug>.md`
+Then append under the matching kind-based sub-hub in `memory/reference/`:
+- Credentials, test accounts, doc-access tricks → `memory/reference/CREDENTIALS.md`
+- MCP servers → `memory/reference/MCP.md`
+- CLI tools, sync scripts, local platform integrations → `memory/reference/TOOLS.md`
 
 ```
 - [[memory/reference/<slug>]] — one-line hook
@@ -286,13 +286,13 @@ Check vault memory metrics. If any threshold is exceeded, consolidate automatica
 
 ```bash
 # MEMORY.md line count
-wc -l < $VAULT_DIR/Memory/MEMORY.md
+wc -l < $VAULT_DIR/memory/MEMORY.md
 
 # feedback/ file count (exclude .base files)
-find $VAULT_DIR/Memory/feedback -name "*.md" -not -name "*.base" | wc -l
+find $VAULT_DIR/memory/feedback -name "*.md" -not -name "*.base" | wc -l
 
 # project/ file count (exclude .base files and .archive/)
-find $VAULT_DIR/Memory/project -name "*.md" -not -name "*.base" -not -path "*/.archive/*" | wc -l
+find $VAULT_DIR/memory/project -name "*.md" -not -name "*.base" -not -path "*/.archive/*" | wc -l
 ```
 
 **Thresholds:**
@@ -316,7 +316,7 @@ find $VAULT_DIR/Memory/project -name "*.md" -not -name "*.base" -not -path "*/.a
 1. Read all feedback file frontmatter to build a tag index
 2. Group files that share at least one project tag AND cover related topics (use filenames and first-line titles to assess relatedness)
 3. For each group of 3+ related files:
-   a. Create a new merged file at `Memory/feedback/<shared-topic>.md`
+   a. Create a new merged file at `memory/feedback/<shared-topic>.md`
    b. Frontmatter tags: union of all source files' tags
    c. Body: each original rule as a bullet, preserving the most specific "Why" and "How to apply" from each source
    d. If two sources contradict, keep the more recent one (by file modification time)
@@ -327,8 +327,8 @@ find $VAULT_DIR/Memory/project -name "*.md" -not -name "*.base" -not -path "*/.a
 **If project/ exceeds 50 files:**
 1. Read all project memory files
 2. Identify files marked as completed/shipped: body contains `~~` strikethrough wrapping the main content, or contains "shipped" / "completed" as a status keyword
-3. Create `Memory/project/.archive/` if it doesn't exist
-4. Move completed files to `Memory/project/.archive/`
+3. Create `memory/project/.archive/` if it doesn't exist
+4. Move completed files to `memory/project/.archive/`
 5. Remove any MEMORY.md index entries that referenced the archived files
 6. Report: "Archived N completed project memories to .archive/"
 
