@@ -161,7 +161,7 @@ date: YYYY-MM-DD
 project: <project-slug>
 tags: [journal]
 ---
-# YYYY-MM-DD — <topic>
+# YYYY-MM-DD: <topic>
 
 ## Summary
 [One paragraph: what was worked on, what changed, what the session accomplished]
@@ -175,6 +175,22 @@ tags: [journal]
 ## Next session
 - [Concrete things to pick up next time]
 ```
+
+**Journal title format:** `# YYYY-MM-DD: <topic>` uses a colon, not an em dash. Em dashes violate the CLAUDE.md prose-hygiene rule and are caught by Step 5.5.
+
+## Step 5.5: Prose-hygiene gate
+
+Before the journal gets committed, lint it against the CLAUDE.md prose-hygiene rules. Run the `prose-hygiene` workflow on the journal entry you just wrote:
+
+```
+Workflow({ scriptPath: "~/.claude/skills/prose-hygiene/prose-hygiene.workflow.js", args: "<absolute path to the journal entry written in Step 5>" })
+```
+
+It returns `{ violations, filesChecked }`. Each violation is `{ file, rule, line, quote, suggestedFix }` covering em dashes, throat-clearing, meta-commentary, vague declaratives, false agency, filler words, and needless adverbs — the AI tells a single drafting pass misses.
+
+For each confirmed violation, apply the `suggestedFix` to the journal entry yourself. You authored this prose, so tightening it is in scope — this is not unattended editing of user content. Use judgment: if a suggested rewrite changes meaning, prefer a fix that satisfies the rule while preserving intent. Re-read the file after edits if needed.
+
+If `violations` is empty, the journal is clean — continue. Skip this step only if the user explicitly says to skip the prose check, or if `~/.claude/skills/prose-hygiene/` does not exist.
 
 ## Step 6: Write changelog
 
