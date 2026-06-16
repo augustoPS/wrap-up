@@ -11,6 +11,38 @@ Close the current session by extracting durable knowledge and recording a journa
 
 This skill uses `$VAULT_DIR` throughout to mean the root of your Obsidian vault. Resolve it from the `autoMemoryDirectory` setting in `~/.claude/settings.json` (strip the `/memory` suffix) or the `CLAUDE_VAULT_DIR` environment variable. If neither is set, ask the user.
 
+## Step 0: Triage inbox/
+
+Drain the fast-capture `inbox/` folder into durable homes before reviewing the session. This runs every wrap-up. Background on the folder is in the `obsidian-retrieval-article-gap-analysis` project memory.
+
+**List capture items** (everything except the `INBOX.md` index):
+
+```bash
+ls "$VAULT_DIR/inbox/" 2>/dev/null | grep -v '^INBOX.md$'
+```
+
+**If there are no capture items, skip silently and go to Step 1** — the same "silent unless there is work" stance as the Step 6.5 maintenance checks.
+
+**For each capture file, read it and classify each distinct idea into one route.** A single dated capture note may hold several ideas bound for different homes, so route per idea, not per file:
+
+| Route | Destination | Action |
+|---|---|---|
+| memory | `memory/<type>/<slug>.md` | Draft a memory (correct type, tags, `originSessionId`). Defer the draft into the Step 2 candidate list. Do NOT write it here. |
+| todo | `TODO.md` | An entry under the matching project heading. |
+| project | `projects/<name>/...` | An append or edit to the relevant project note. |
+| discard | (deleted) | Drop the idea outright. |
+
+**Build a routing table and carry it to Step 2.** Do not write files or prompt the user yet — Step 0 classifies silently; the table and any memory drafts are presented at the Step 2/3 approval gate. Example:
+
+```
+Inbox triage (3 items):
+ 1  r2-cdn-idea.md   -> TODO.md (pasqualo.to)
+ 2  nas-thought.md   -> memory/project/  (draft shown with candidates)
+ 3  random-link.md   -> DISCARD
+```
+
+Approved routes execute in Step 4 alongside memory writes. A source file is deleted once all its ideas are rehomed; a file with a deferred idea is rewritten with only the unprocessed remainder, so nothing is lost. `INBOX.md` is never read as a capture item and never deleted.
+
 ## Step 1: Review the session
 
 Scan the current conversation for anything worth persisting across sessions:
@@ -41,7 +73,7 @@ Cross-references go in plain prose with backticks, e.g. "see the `shop-admin-mig
 
 The only exceptions are the `USER.md` and `REFERENCE.md` hubs, which DO link to their memories (graph clusters by design). The memory files themselves still have no outbound links.
 
-Present ALL drafts in a single message. Do not write any files yet.
+Present ALL drafts in a single message, together with the inbox routing table from Step 0 (inbox memory items appear here as drafts; todo/project/discard routes appear as table rows). Do not write any files yet.
 
 If nothing worth saving was found, say so clearly and skip to Step 5.
 
@@ -52,7 +84,7 @@ Wait for the user to respond. They may:
 - Edit individual entries inline
 - Reject entries (just skip them)
 
-Only proceed with explicitly approved entries.
+Only proceed with explicitly approved entries. This single approval also covers the Step 0 inbox routing table — memory, todo, project, and discard routes alike.
 
 ## Step 4: Write approved memories
 
@@ -107,6 +139,8 @@ Then append under the matching kind-based sub-hub in `memory/reference/`:
 ```
 
 The three sub-hubs (CREDENTIALS, MCP, TOOLS) and the top-level REFERENCE.md hub intentionally wikilink reference memories — that's how they appear on the graph. The memory file itself still has no outbound links. If a reference doesn't fit any of the three buckets cleanly, default to TOOLS and mention the categorization decision in the commit message.
+
+**Approved inbox routes (from Step 0) also execute here.** Write `TODO.md` entries and project-note edits to their targets. Delete discarded ideas and any source file whose ideas were all rehomed. If a multi-idea capture file has a deferred idea, rewrite the file with only the unprocessed remainder rather than deleting it. `INBOX.md` is never deleted.
 
 ## Vault structure reference
 
@@ -386,6 +420,7 @@ After all storage writes (memory, journal, changelog, TODO hub updates, and any 
 - `memory/<type>/<slug>.md` — any new memory files
 - `memory/MEMORY.md` / `memory/user/USER.md` / `memory/reference/REFERENCE.md` — any hub updates
 - `TODO.md` or other top-level hubs touched
+- `inbox/<file>` removals (rehomed or discarded capture files) and `inbox/INBOX.md` if its protocol text changed
 - `journal/YYYY-MM-DD-<slug>.md` — the session entry
 - `projects/<name>/changelog.md` or `projects/website/changelog.md` — the changelog prepend
 - `projects/<name>/<name>.md` — if the project hub was updated
@@ -417,6 +452,7 @@ If a pre-commit hook fails, fix the underlying issue and re-stage + re-commit (N
 
 Report:
 - How many memory entries were written (and their paths)
+- Inbox triage result: `N rehomed (M memory, P todo, Q project), R discarded, S deferred`, or "inbox empty, skipped"
 - Journal entry path
 - Changelog path written (vault only), or "no commits this session"
 - Graphify save result, or "skipped" if no graph or user passed
