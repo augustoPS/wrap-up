@@ -438,10 +438,11 @@ git -C $VAULT_DIR commit -m "$(cat <<'EOF'
 <2-4 line body summarizing what was written: which memories, journal slug,
 hub updates, and any other artifacts. Match the level of detail in the
 session's project-repo commits if any landed there.>
-
-Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>
 EOF
 )"
+# Do NOT hardcode a Co-Authored-By trailer here. It is appended automatically
+# per the harness attribution settings, which track the current model version.
+# A literal trailer (e.g. a pinned "Opus 4.X") goes stale at each model bump.
 ```
 
 **Skip this step if** `git status --short` shows no staged or unstaged changes after Steps 1–7 — there's nothing to commit. Also skip if the only dirty files are unrelated to the session (e.g. only the SessionEnd hook's stub append on someone else's journal); those belong to whoever modified them, not to wrap-up.
