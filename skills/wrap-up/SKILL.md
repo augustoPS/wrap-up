@@ -392,15 +392,9 @@ find $VAULT_DIR/memory/project -name "*.md" -not -name "*.base" -not -path "*/.a
 ls <project-cwd>/graphify-out/ 2>/dev/null
 ```
 
-If the directory exists, ask:
+If the directory exists, **save by default — do not ask first.** Review the session for a *graph-worthy discovery*: an investigation or Q&A that answered a "why does X / how does Y work" question about this project's code, surfaced a non-obvious gotcha or root cause, or reached a design conclusion a future `graphify query` should recall. The completion criterion is concrete: a discovery is graph-worthy when it is (a) about the graphed project's code, and (b) not already fully captured in a memory or journal entry in a form the graph would merely duplicate.
 
-> "Any investigation or Q&A from this session worth saving to the graph? (paste a question, or skip)"
-
-If the user provides a question, ask:
-
-> "One-sentence answer summary?"
-
-Then run:
+For each graph-worthy discovery, synthesize the question and a one-sentence answer yourself from the session, then save it:
 
 ```bash
 python3 -m graphify save-result \
@@ -409,7 +403,13 @@ python3 -m graphify save-result \
   --type query
 ```
 
-If the user skips → move on silently.
+Report each saved Q&A in the Done summary so the user can correct or delete it.
+
+**Prompt only when relevance is genuinely ambiguous** — a borderline discovery where you cannot tell whether it is graph-worthy. Then, and only then, ask:
+
+> "This came up this session: <one-line>. Worth saving to the graph? (yes / skip)"
+
+**Skip silently if** the session produced no graph-worthy discovery (routine edits, no investigation, or everything is already captured in memory/journal). Saving nothing is the correct outcome for a session with no codebase insight; do not invent a Q&A to fill the step.
 
 ## Step 8: Commit vault changes
 
@@ -456,6 +456,6 @@ Report:
 - Inbox triage result: `N rehomed (M memory, P todo, Q project), R discarded, S deferred`, or "inbox empty, skipped"
 - Journal entry path
 - Changelog path written (vault only), or "no commits this session"
-- Graphify save result, or "skipped" if no graph or user passed
+- Graphify Q&A saved (the question(s) auto-saved this session), or "skipped" if no graph or no graph-worthy discovery
 - Vault commit hash + paths included, or "no vault changes to commit"
 
