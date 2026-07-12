@@ -115,7 +115,7 @@ Wait for the user to respond. They may:
 - Edit individual entries inline
 - Reject entries (just skip them)
 
-Only proceed with explicitly approved entries. This single approval also covers the Step 0 inbox routing table — memory, todo, project, and discard routes alike.
+Only proceed with explicitly approved entries. This single approval also covers the Step 0 inbox routing table — memory, todo, project, and discard routes alike. It equally covers the Step 1 ledger proposals and the Step 1.5 reflector proposals.
 
 ## Step 4: Write approved memories
 
@@ -172,6 +172,8 @@ Then append under the matching kind-based sub-hub in `memory/reference/`:
 The three sub-hubs (CREDENTIALS, MCP, TOOLS) and the top-level REFERENCE.md hub intentionally wikilink reference memories — that's how they appear on the graph. The memory file itself still has no outbound links. If a reference doesn't fit any of the three buckets cleanly, default to TOOLS and mention the categorization decision in the commit message.
 
 **Approved inbox routes (from Step 0) also execute here.** Write `TODO.md` entries and project-note edits to their targets. Delete discarded ideas and any source file whose ideas were all rehomed. If a multi-idea capture file has a deferred idea, rewrite the file with only the unprocessed remainder rather than deleting it. `INBOX.md` is never deleted.
+
+**Approved reflector and ledger actions (from Steps 1 and 1.5) also execute here.** Apply counter bumps and `last_fired` as targeted edits to the note's root-level frontmatter. Apply refinements as single-line edits. Retirements move the file to `$VAULT_DIR/memory/feedback/.archive/` (create the folder if missing; it is a dot-folder, so Obsidian does not index it). Ledger actions rewrite only the affected `CANDIDATES.md` rows; a graduated row is removed in the same pass that writes its feedback file. A malformed ledger row blocks only that row: flag it for manual fix rather than guessing.
 
 ## Vault structure reference
 
@@ -449,6 +451,8 @@ After all storage writes (memory, journal, changelog, TODO hub updates, and any 
 **Stage selectively.** Stage ONLY the files you wrote or modified during this wrap-up + the session itself. Use specific paths, not `git add -A` / `git add .` — those would sweep up unrelated dirty state from other sources (e.g. SessionEnd hook stub appends, in-progress edits in other projects). Typical wrap-up paths:
 
 - `memory/<type>/<slug>.md` — any new memory files
+- `memory/feedback/CANDIDATES.md` — ledger row changes, and `memory/feedback/.archive/` moves from retirements
+- `memory/feedback/<slug>.md` — counter bumps and refinements from the reflector
 - `memory/MEMORY.md` / `memory/user/USER.md` / `memory/reference/REFERENCE.md` — any hub updates
 - `TODO.md` or other top-level hubs touched
 - `inbox/<file>` removals (rehomed or discarded capture files) and `inbox/INBOX.md` if its protocol text changed
