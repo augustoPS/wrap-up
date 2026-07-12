@@ -54,6 +54,32 @@ Scan the current conversation for anything worth persisting across sessions:
 
 Do NOT save: code patterns derivable from reading the codebase, git history, anything already in CLAUDE.md, ephemeral task details.
 
+**Feedback routing (Rule of Three).** Feedback observations split by origin:
+
+- **Explicit directive.** The user said "remember this", "always X", "never Y", or otherwise directly instructed a standing behavior. Promote immediately: draft a feedback memory in Step 2.
+- **Inferred observation.** A correction or pattern noticed without an explicit instruction. Route to the candidates ledger at `$VAULT_DIR/memory/feedback/CANDIDATES.md`. Match against existing rows by underlying meaning, not wording. Propose either incrementing a matching row (Seen +1, append the session id, update the last date) or adding a new row at Seen 1. A row reaching Seen 3 graduates: draft it as a feedback memory in Step 2 and propose removing the row in the same action.
+- **Previously retired.** If an observation matches a rule in `memory/feedback/.archive/`, surface it as "previously retired, revive?" instead of adding a ledger row.
+
+Ledger proposals are presented at the Step 3 gate, not written here. If the ledger file is missing, propose creating it with `type: ledger` frontmatter, the explainer header, and an empty `| Observation | Seen | Sessions | First / last | Draft rule |` table (see the Wave 1 spec in the vault: `projects/vault-system/specs/2026-07-12-vault-self-maintenance-wave1-design.md`).
+
+User, project, and reference memories are unaffected by the ledger; they keep the existing Step 2 path.
+
+## Step 1.5: Reflect on standing rules
+
+A third-person pass over the session: which standing feedback rules fired, and did each help or misfire? A rule fired when the session presented a situation the rule governs, whether or not the rule was followed.
+
+Identify fired rules from the feedback memories recalled into this session's context plus any read during the session. For each fired rule, propose ONE targeted edit:
+
+- **Counter bump:** `helped: N+1` or `misfired: N+1`, plus `last_fired: <session start date>`. Add absent fields at the frontmatter root (flat YAML, never nested under `metadata:`). An absent counter reads as 0.
+- **Refinement:** a one-line change to the rule text when the session showed the wording is off.
+- **Retirement:** move the file to `$VAULT_DIR/memory/feedback/.archive/` when the rule misfires repeatedly or no longer applies.
+
+Never rewrite a note wholesale. A proposal touches frontmatter counters or a single line, nothing more. If no standing rule fired, state "No standing rules fired this session" and move on.
+
+These proposals are presented in the Step 2 message and share the Step 3 approval gate.
+
+**Escalation path (documented, not built):** if wrap-ups start missing fired rules or making sloppy counter calls, replace this prose pass with a per-rule verifier workflow following the prose-hygiene pattern (one checker agent per fired rule, returning structured bump/refine/retire proposals).
+
 ## Step 2: Draft candidates
 
 Format each candidate in compact B:
@@ -73,9 +99,14 @@ Cross-references go in plain prose with backticks, e.g. "see the `shop-admin-mig
 
 The only exceptions are the `USER.md` and `REFERENCE.md` hubs, which DO link to their memories (graph clusters by design). The memory files themselves still have no outbound links.
 
-Present ALL drafts in a single message, together with the inbox routing table from Step 0 (inbox memory items appear here as drafts; todo/project/discard routes appear as table rows). Do not write any files yet.
+Present ALL drafts in a single message, together with the inbox routing table from Step 0 (inbox memory items appear here as drafts; todo/project/discard routes appear as table rows), the Step 1 ledger proposals, and the Step 1.5 reflector proposals. Do not write any files yet.
 
-If nothing worth saving was found, say so clearly and skip to Step 5.
+**Codify gate.** This step must end in one of two states:
+
+1. At least one action on the table: a memory draft, a ledger row add/increment/graduation, or a reflector proposal.
+2. The explicit line "No durable lesson this session" plus a one-sentence justification.
+
+Silent skipping is not an option; extraction is a required output of every wrap-up. In state 2, skip to Step 5 after stating the line.
 
 ## Step 3: Get approval
 
