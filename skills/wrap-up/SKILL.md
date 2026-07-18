@@ -375,7 +375,7 @@ wc -l < $VAULT_DIR/memory/MEMORY.md
 find $VAULT_DIR/memory/feedback -name "*.md" -not -name "*.base" | wc -l
 
 # project/ file count (exclude .base files and .archive/)
-find $VAULT_DIR/memory/project -name "*.md" -not -name "*.base" -not -path "*/.archive/*" | wc -l
+find $VAULT_DIR/memory/project -name "*.md" -not -name "*.base" -not -path "*/archive/*" -not -path "*/.archive/*" | wc -l
 ```
 
 **Thresholds:**
