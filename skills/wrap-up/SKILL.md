@@ -417,6 +417,23 @@ find $VAULT_DIR/memory/project -name "*.md" -not -name "*.base" -not -path "*/ar
 
 **After any consolidation:** all changes are unstaged, visible in the Step 8 commit diff. The Step 8 commit message should include a line describing what was consolidated.
 
+## Step 6.6: Reconcile the TODO hub
+
+The `$VAULT_DIR/TODO.md` hub decays like any index: the session's own work moves items from open to done or partial, but the hub still describes the pre-session world. Steps 5 and 6 wrote the journal and changelog from what shipped — now apply that same session record to the TODO hub so it matches reality before the commit.
+
+**Runs every wrap-up. Silent if nothing changed.**
+
+Using this session's commits (the Step 6 list), completed tasks, and shipped/merged features:
+
+1. **For each active item the session touched**, apply the hub's own `## Conventions`:
+   - **Fully done** (shipped, merged, or the whole item's work landed) → delete the entry. The journal + changelog + source memory are the durable record.
+   - **Partially done** → rewrite the entry down to only the live remainder. Drop the finished sub-parts; keep what is still open. Never leave a done sub-clause describing work that already shipped.
+   - **Status changed but not done** (built-on-a-branch, PR open, awaiting owner verification) → update the entry to name the new state, not the old one.
+2. **New open work surfaced this session** that outlives it → add an item under the right project heading (or, for a batch, create a single project memory tagged `todo/source` and link that, per the conventions).
+3. **Verify against ground truth, not the session narrative.** Before deleting or shrinking an item, confirm the work actually landed (a commit in the Step 6 list, a merged PR, a file on disk). This step exists because the most common wrap-up miss is leaving an item stale that the session itself completed — the reconcile has to run at the *end*, against the session's diffs, not only when an item is first touched.
+
+If the session changed no TODO item and surfaced no new open work, skip silently. Any edits here stage with the other vault changes in Step 8 (`TODO.md` is already in that path list).
+
 ## Step 7: Save graphify result
 
 **Skip this step entirely if `graphify-out/` does not exist in the project root.** Check with:
@@ -491,6 +508,7 @@ Report:
 - Inbox triage result: `N rehomed (M memory, P todo, Q project), R discarded, S deferred`, or "inbox empty, skipped"
 - Journal entry path
 - Changelog path written (vault only), or "no commits this session"
+- TODO hub reconciled: items deleted/rewritten/added, or "no TODO changes"
 - Graphify Q&A saved (the question(s) auto-saved this session), or "skipped" if no graph or no graph-worthy discovery
 - Vault commit hash + paths included, or "no vault changes to commit"
 
