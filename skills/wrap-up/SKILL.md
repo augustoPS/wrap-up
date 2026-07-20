@@ -76,6 +76,8 @@ Identify fired rules from the feedback memories recalled into this session's con
 
 Never rewrite a note wholesale. A proposal touches frontmatter counters or a single line, nothing more. If no standing rule fired, state "No standing rules fired this session" and move on.
 
+**First-pass acceptance judgment (required, every wrap-up).** One binary call on the whole session: `first_pass_accepted: true` when the session's main deliverable landed without substantive correction or an ordered redo, `false` otherwise (accepted-after-rework is false). Clarifying questions and minor inline edits do not flip it to false; a redo instruction or a corrected wrong approach does. Propose the value with a one-line basis, e.g. "First-pass accepted: false (owner ordered the parser rewritten after review)". It is presented with the other Step 1.5 proposals, shares the Step 3 gate, and is written into the Step 5 journal frontmatter once approved. Sessions with no deliverable (pure Q&A, triage) default to true unless the owner corrects course mid-session.
+
 These proposals are presented in the Step 2 message and share the Step 3 approval gate.
 
 **Escalation path (documented, not built):** if wrap-ups start missing fired rules or making sloppy counter calls, replace this prose pass with a per-rule verifier workflow following the prose-hygiene pattern (one checker agent per fired rule, returning structured bump/refine/retire proposals).
@@ -227,6 +229,7 @@ Content:
 date: YYYY-MM-DD
 project: <project-slug>
 tags: [journal]
+first_pass_accepted: <true | false, the approved Step 1.5 judgment>
 ---
 # YYYY-MM-DD: <topic>
 
