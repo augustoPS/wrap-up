@@ -434,6 +434,23 @@ Using this session's commits (the Step 6 list), completed tasks, and shipped/mer
 
 If the session changed no TODO item and surfaced no new open work, skip silently. Any edits here stage with the other vault changes in Step 8 (`TODO.md` is already in that path list).
 
+## Step 6.7: Graph hygiene
+
+The Obsidian graph stays legible only if every session leaves it a tree: HOME and PROJECTS fan out, each note has one parent, cross-project relations live on `projects/SEAMS.canvas`, and off-graph classes stay off. Check only the vault files this session added or modified (`git -C $VAULT_DIR status --porcelain`).
+
+**Runs every wrap-up. Silent if nothing changed.**
+
+1. **Archive what shipped.** A spec or plan under `projects/**/specs/` or `projects/**/plans/` whose work verifiably landed this session (commit evidence, per Step 6.6's ground-truth rule) moves to the sibling `archive/` via `git mv`. If that archive folder is new, add it to `.obsidian/app.json` `userIgnoreFilters`. Strip the archived file's wikilinks (`[[t|alias]]` becomes alias, `[[t]]` becomes t; leave code fences untouched).
+2. **No new duplicate basenames.** A new `.md` file must not share a basename with any existing vault file — Obsidian resolves short links by basename, and duplicate labels make graph nodes indistinguishable. Changelogs are `<project>-changelog.md`; top-level indexes are UPPERCASE.
+3. **Wikilink discipline on changed files.**
+   - `memory/**` and `journal/**`: zero outbound wikilinks; cross-references are backticked plain text. The only exceptions are the index chain (`MEMORY -> USER/REFERENCE`, `REFERENCE -> TOOLS/MCP/CREDENTIALS`, `USER -> working-style`) — and those link down only, never back up.
+   - Links to `.base` files carry the `.base` extension (`[[path/memory.base|memory.base]]`); extensionless base links do not resolve.
+4. **Tree discipline.** A new wikilink between two graph-resident notes is redundant if the target is already reachable in 1-2 hops through HOME or PROJECTS — cite it as backticked text instead. No hub-to-hub cross-links, no child-to-parent backlinks, no self-links. The one standing hierarchy exception: `vault-system -> graphify-vault` (sole parent).
+5. **Seams go on the canvas.** If the session created or changed a cross-project relationship (shared infra, pipeline hand-off, publish/fork/config seam), represent it on `projects/SEAMS.canvas` (node or arrow; arrows stay label-free), not as a hub wikilink.
+6. **Never edit `.obsidian/graph.json` here.** It is volatile view-state; Obsidian clobbers it while open. The canonical filter, color groups, and physics live in the `obsidian-graph-colorgroups-drift` memory — restore from there only on explicit request, with Obsidian closed.
+
+Any fixes stage with the other vault changes in Step 8.
+
 ## Step 7: Save graphify result
 
 **Skip this step entirely if `graphify-out/` does not exist in the project root.** Check with:
