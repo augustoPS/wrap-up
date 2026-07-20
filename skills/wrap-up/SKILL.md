@@ -302,8 +302,8 @@ Only include headers that have at least one commit.
 
 Determine the target file by project:
 
-- If the project belongs to a **family** (a group of related projects sharing a single changelog), write to the family's consolidated changelog: `$VAULT_DIR/projects/<family>/changelog.md`
-- Otherwise, write to `$VAULT_DIR/projects/<project>/changelog.md` (create if missing)
+- If the project belongs to a **family** (a group of related projects sharing a single changelog), write to the family's consolidated changelog: `$VAULT_DIR/projects/<family>/<family>-changelog.md`
+- Otherwise, write to `$VAULT_DIR/projects/<project>/<project>-changelog.md` (create if missing; the `<project>-` prefix keeps graph node labels distinct)
 
 **Format the entry** — heading carries a `(<project>)` tag so family changelogs stay scannable across sub-projects. Cross-cutting sessions use `(<projectA> + <projectB>)`. `session-slug` is the slug portion of the Step 5 journal filename (e.g. journal `2026-04-23-about-redesign.md` → slug `about-redesign`).
 
@@ -474,7 +474,7 @@ After all storage writes (memory, journal, changelog, TODO hub updates, and any 
 - `TODO.md` or other top-level hubs touched
 - `inbox/<file>` removals (rehomed or discarded capture files) and `inbox/INBOX.md` if its protocol text changed
 - `journal/YYYY-MM-DD-<slug>.md` — the session entry
-- `projects/<name>/changelog.md` or `projects/website/changelog.md` — the changelog prepend
+- `projects/<name>/<name>-changelog.md` or `projects/website/website-changelog.md` — the changelog prepend
 - `projects/<name>/<name>.md` — if the project hub was updated
 - Any `projects/<name>/{specs,plans,design-handoffs}/...` files written or moved during the session
 
